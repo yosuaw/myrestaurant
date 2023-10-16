@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         ],
       ),
       backgroundColor: backgroundColor,
-      duration: 100,
+      duration: 1200,
       splashIconSize: 279,
       splashTransition: SplashTransition.fadeTransition,
       pageTransitionType: PageTransitionType.theme,
