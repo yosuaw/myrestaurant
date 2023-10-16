@@ -26,21 +26,21 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  Widget _getWidget(List<Restaurant> restaurants, int navIndex) {
+  Widget _getWidget(int navIndex) {
     switch (navIndex) {
       case 0:
-        return ListPage(restaurants: restaurants);
+        return ListPage(restaurants: widget.restaurants);
       case 1:
         return const ProfilePage();
       default:
-        return ListPage(restaurants: restaurants);
+        return ListPage(restaurants: widget.restaurants);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _getWidget(widget.restaurants, _bottomNavIndex),
+      body: _getWidget(_bottomNavIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _bottomNavIndex,
         items: _bottomNavBarItems,
