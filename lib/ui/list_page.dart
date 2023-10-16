@@ -158,29 +158,7 @@ Widget _buildRestaurantItem(BuildContext context, Restaurant restaurant) {
             ),
           ),
         ),
-        // const Divider(
-        //   thickness: 1,
-        //   height: 10,
-        //   color: Colors.grey,
-        // )
       ],
-      // contentPadding:
-      //     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      // leading: Hero(
-      //   tag: restaurant.pictureId,
-      //   child: Image.network(
-      //     restaurant.pictureId,
-      //     width: 100,
-      //     errorBuilder: (ctx, error, _) =>
-      //         const Center(child: Icon(Icons.error)),
-      //   ),
-      // ),
-      // title: Text(restaurant.name),
-      // subtitle: Text(restaurant.rating.toString()),
-      // onTap: () {
-      //   Navigator.pushNamed(context, DetailPage.routeName,
-      //       arguments: restaurant);
-      // },
     ),
   );
 }
