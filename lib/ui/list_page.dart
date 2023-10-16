@@ -60,13 +60,13 @@ Widget _welcomeText(BuildContext context) {
   int hour = DateTime.now().toLocal().hour;
   String text = '';
 
-  if (hour >= 1 && hour <= 12) {
+  if (hour >= 1 && hour < 12) {
     text = "Good Morning";
-  } else if (hour >= 12 && hour <= 16) {
+  } else if (hour >= 12 && hour < 15) {
     text = "Good Afternoon";
-  } else if (hour >= 16 && hour <= 21) {
+  } else if (hour >= 15 && hour < 19) {
     text = "Good Evening";
-  } else if (hour >= 21 && hour <= 24) {
+  } else if (hour >= 19 && hour <= 24) {
     text = "Good Night";
   }
 
