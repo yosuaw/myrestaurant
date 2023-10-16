@@ -19,15 +19,15 @@ class Restaurant {
     required this.menus,
   });
 
-  Restaurant.fromJson(Map<String, dynamic> json) {
-    id = json["id"];
-    name = json["name"];
-    description = json["description"];
-    pictureId = json["pictureId"];
-    city = json["city"];
-    rating = json["rating"];
-    menus = json["menus"];
-  }
+  factory Restaurant.fromJson(Map<String, dynamic> json) => Restaurant(
+        id: json["id"],
+        name: json["name"],
+        description: json["description"],
+        pictureId: json["pictureId"],
+        city: json["city"],
+        rating: json["rating"],
+        menus: json["menus"],
+      );
 
   static List<Restaurant> parseRestaurants(String? json) {
     if (json == null) {

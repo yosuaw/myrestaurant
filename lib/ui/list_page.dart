@@ -101,8 +101,9 @@ Widget _buildRestaurantItem(BuildContext context, Restaurant restaurant) {
                         restaurant.pictureId,
                         errorBuilder: (context, error, stackTrace) {
                           return Image.asset(
-                            'images/error_image',
+                            'images/error_image.jpeg',
                             fit: BoxFit.cover,
+                            height: 200,
                           );
                         },
                       ),

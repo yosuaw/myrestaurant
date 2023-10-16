@@ -74,7 +74,7 @@ class DetailPage extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Image.asset(
-                      'images/error_image',
+                      'images/error_image.jpeg',
                       fit: BoxFit.cover,
                     );
                   },
