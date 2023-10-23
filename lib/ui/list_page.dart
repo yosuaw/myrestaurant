@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:myrestaurant/data/model/restaurant.dart';
-import 'package:myrestaurant/ui/detail_page.dart';
+import 'package:myrestaurant/provider/restaurant_list_provider.dart';
+import 'package:myrestaurant/ui/search_page.dart';
+import 'package:myrestaurant/widgets/card_restaurant.dart';
+import 'package:provider/provider.dart';
 
 class ListPage extends StatelessWidget {
   static const routeName = '/list';
-  final List<Restaurant> restaurants;
 
-  const ListPage({super.key, required this.restaurants});
+  const ListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,15 +17,19 @@ class ListPage extends StatelessWidget {
           "My Restaurant",
           style: Theme.of(context).textTheme.headlineSmall,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => Navigator.pushNamed(context, SearchPage.routeName),
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Column(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _welcomeText(context),
@@ -40,17 +45,10 @@ class ListPage extends StatelessWidget {
                   ),
                 ],
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: restaurants.length,
-                itemBuilder: (context, idx) {
-                  return _buildRestaurantItem(context, restaurants[idx]);
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+          _buildRestaurantItem(context),
+        ],
       ),
     );
   }
@@ -76,90 +74,74 @@ Widget _welcomeText(BuildContext context) {
   );
 }
 
-Widget _buildRestaurantItem(BuildContext context, Restaurant restaurant) {
-  return Material(
-    child: Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, DetailPage.routeName,
-                arguments: restaurant);
-          },
-          behavior: HitTestBehavior.opaque,
-          child: Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0)),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Hero(
-                      tag: restaurant.pictureId,
-                      child: Image.network(
-                        restaurant.pictureId,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'images/error_image.jpeg',
-                            fit: BoxFit.cover,
-                            height: 200,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          restaurant.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(color: Colors.black),
-                        ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.location_pin,
-                              size: 15.0,
-                              color: Colors.red,
-                            ),
-                            Text(
-                              restaurant.city,
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.star_rate,
-                              size: 15.0,
-                              color: Colors.yellow,
-                            ),
-                            Text(
-                              restaurant.rating.toString(),
-                              style: Theme.of(context).textTheme.labelSmall,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+Widget _buildRestaurantItem(BuildContext context) {
+  return Consumer<RestaurantListProvider>(
+    builder: (context, state, child) {
+      if (state.state == ResultState.loading) {
+        return SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height / 1.3,
+            child: const Center(
+              child: SizedBox(
+                height: 60,
+                width: 60,
+                child: CircularProgressIndicator(),
+              ),
             ),
           ),
-        ),
-      ],
-    ),
+        );
+      } else if (state.state == ResultState.hasData) {
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            childCount: state.result.restaurants.length,
+            (context, index) {
+              var restaurant = state.result.restaurants[index];
+              return CardRestaurant(restaurant: restaurant);
+            },
+          ),
+        );
+      } else if (state.state == ResultState.noData) {
+        return SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height / 1.3,
+            child: Center(
+              child: Text(
+                state.message,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        );
+      } else if (state.state == ResultState.error) {
+        return SliverToBoxAdapter(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height / 1.4,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    state.message,
+                    style: Theme.of(context).textTheme.labelMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => state.updateData(),
+                    child: const Text('Try Again'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      } else {
+        return const Center(
+          child: SliverToBoxAdapter(
+            child: Text(''),
+          ),
+        );
+      }
+    },
   );
 }

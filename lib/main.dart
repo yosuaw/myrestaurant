@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:myrestaurant/common/styles.dart';
-import 'package:myrestaurant/data/model/restaurant.dart';
+import 'package:myrestaurant/data/api/api_service.dart';
+import 'package:myrestaurant/provider/search_provider.dart';
 import 'package:myrestaurant/ui/detail_page.dart';
+import 'package:myrestaurant/ui/home_page.dart';
 import 'package:myrestaurant/ui/list_page.dart';
+import 'package:myrestaurant/ui/search_page.dart';
 import 'package:myrestaurant/ui/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,13 +43,16 @@ class MyApp extends StatelessWidget {
       initialRoute: SplashScreen.routeName,
       routes: {
         SplashScreen.routeName: (context) => const SplashScreen(),
-        ListPage.routeName: (context) => ListPage(
-              restaurants: ModalRoute.of(context)?.settings.arguments
-                  as List<Restaurant>,
-            ),
+        HomePage.routeName: (context) => const HomePage(),
+        ListPage.routeName: (context) => const ListPage(),
         DetailPage.routeName: (context) => DetailPage(
-              restaurant:
-                  ModalRoute.of(context)?.settings.arguments as Restaurant,
+              id: ModalRoute.of(context)?.settings.arguments as String,
+            ),
+        SearchPage.routeName: (context) => ChangeNotifierProvider(
+              create: (context) => SearchProvider(
+                apiService: ApiService(),
+              ),
+              child: const SearchPage(),
             ),
       },
     );

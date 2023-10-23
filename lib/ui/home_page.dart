@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:myrestaurant/data/model/restaurant.dart';
+import 'package:myrestaurant/data/api/api_service.dart';
+import 'package:myrestaurant/provider/restaurant_list_provider.dart';
 import 'package:myrestaurant/ui/list_page.dart';
 import 'package:myrestaurant/ui/profile_page.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home';
-  final List<Restaurant> restaurants;
 
-  const HomePage({super.key, required this.restaurants});
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -26,21 +27,18 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  Widget _getWidget(int navIndex) {
-    switch (navIndex) {
-      case 0:
-        return ListPage(restaurants: widget.restaurants);
-      case 1:
-        return const ProfilePage();
-      default:
-        return ListPage(restaurants: widget.restaurants);
-    }
-  }
+  final List<Widget> _getWidget = [
+    ChangeNotifierProvider<RestaurantListProvider>(
+      create: (context) => RestaurantListProvider(apiService: ApiService()),
+      child: const ListPage(),
+    ),
+    const ProfilePage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _getWidget(_bottomNavIndex),
+      body: _getWidget[_bottomNavIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _bottomNavIndex,
         items: _bottomNavBarItems,

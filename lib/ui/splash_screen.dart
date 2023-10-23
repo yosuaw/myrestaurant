@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSplashScreen.withScreenFunction(
+    return AnimatedSplashScreen(
       splash:
           // Lottie.asset('assets/lottie_animation.json'),
           Column(
@@ -41,13 +41,8 @@ class _SplashScreenState extends State<SplashScreen> {
       splashIconSize: 279,
       splashTransition: SplashTransition.fadeTransition,
       pageTransitionType: PageTransitionType.theme,
-      screenFunction: () async {
-        final String json = await DefaultAssetBundle.of(context)
-            .loadString('assets/local_restaurant.json');
-        restaurants = Restaurant.parseRestaurants(json);
-        return HomePage(restaurants: restaurants);
-      },
       animationDuration: const Duration(milliseconds: 750),
+      nextScreen: const HomePage(),
     );
   }
 }
