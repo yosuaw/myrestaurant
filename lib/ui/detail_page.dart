@@ -1,181 +1,190 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myrestaurant/common/styles.dart';
-import 'package:myrestaurant/data/api/api_service.dart';
 import 'package:myrestaurant/data/model/restaurant.dart';
-import 'package:myrestaurant/provider/restaurant_detail_provider.dart';
+import 'package:myrestaurant/provider/database_provider.dart';
 import 'package:provider/provider.dart';
 
 class DetailPage extends StatelessWidget {
   static const routeName = '/detail';
-  final String id;
+  final Restaurant restaurant;
 
-  const DetailPage({super.key, required this.id});
+  const DetailPage({super.key, required this.restaurant});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<RestaurantDetailProvider>(
-      create: (_) => RestaurantDetailProvider(apiService: ApiService(), id: id),
-      child: Scaffold(
-        body: Consumer<RestaurantDetailProvider>(
-          builder: (context, state, child) {
-            if (state.state == ResultState.loading) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else if (state.state == ResultState.hasData) {
-              return Scaffold(
-                body: _buildDetail(context, state.result),
-                floatingActionButton: _buildFAB(context, state.result.menus!),
-              );
-            } else if (state.state == ResultState.noData) {
-              return Scaffold(
-                body: Center(
-                  child: Material(
-                    child: Text(state.message),
-                  ),
-                ),
-              );
-            } else if (state.state == ResultState.error) {
-              return Scaffold(
-                body: Center(
-                  child: Material(
-                    child: Text(
-                      state.message,
-                      textAlign: TextAlign.center,
+    return Scaffold(
+      body: Consumer<DatabaseProvider>(
+        builder: (context, provider, child) {
+          return FutureBuilder(
+            future: provider.isFavorite(restaurant.id),
+            builder: (context, snapshot) {
+              var isFavorite = snapshot.data ?? false;
+
+              return CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    pinned: false,
+                    expandedHeight: 200,
+                    leadingWidth: 38,
+                    leading: CircleAvatar(
+                      backgroundColor: const Color(0xBB04E6FF),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Hero(
+                        tag: restaurant.pictureId,
+                        child: Image.network(
+                          'https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId}',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'images/error_image.jpeg',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                restaurant.name,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              Flexible(
+                                child: isFavorite
+                                    ? IconButton(
+                                        icon: const Icon(
+                                          Icons.favorite,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () {
+                                          provider
+                                              .removeFavorite(restaurant.id);
+                                          Fluttertoast.showToast(
+                                            msg:
+                                                "Restaurant removed from favorites",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.BOTTOM,
+                                            backgroundColor: Colors.grey[600],
+                                            timeInSecForIosWeb: 1,
+                                          );
+                                        },
+                                      )
+                                    : IconButton(
+                                        icon: const Icon(
+                                          Icons.favorite_border,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () {
+                                          provider.addFavorite(restaurant);
+                                          Fluttertoast.showToast(
+                                            msg:
+                                                "Restaurant added to favorites",
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.BOTTOM,
+                                            backgroundColor: Colors.grey[600],
+                                            timeInSecForIosWeb: 1,
+                                          );
+                                        },
+                                      ),
+                              ),
+                            ],
+                          ),
+                          const Divider(
+                            color: Colors.blueGrey,
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.pin_drop,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              Expanded(
+                                child: Text(
+                                    "${restaurant.address}, ${restaurant.city}",
+                                    style:
+                                        Theme.of(context).textTheme.labelSmall),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              RatingBarIndicator(
+                                rating: restaurant.rating.toDouble(),
+                                itemSize: 20,
+                                itemBuilder: (context, index) {
+                                  return const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  );
+                                },
+                              ),
+                              Text(" ${restaurant.rating.toString()}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(fontSize: 15)),
+                            ],
+                          ),
+                          restaurant.categories!.isNotEmpty
+                              ? RichText(
+                                  text: TextSpan(
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(fontSize: 15),
+                                      children: [
+                                        const TextSpan(text: "Category: "),
+                                        TextSpan(
+                                          text: _restaurantCat(
+                                              restaurant.categories!),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        )
+                                      ]),
+                                )
+                              : const Text(
+                                  "Category: -",
+                                ),
+                          const Divider(
+                            color: Colors.blueGrey,
+                          ),
+                          Text(
+                            restaurant.description,
+                            style: Theme.of(context).textTheme.bodySmall,
+                            textAlign: TextAlign.justify,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
               );
-            } else {
-              return const Scaffold(
-                body: Center(
-                  child: Material(
-                    child: Text(''),
-                  ),
-                ),
-              );
-            }
-          },
-        ),
+            },
+          );
+        },
       ),
+      floatingActionButton: _buildFAB(context, restaurant),
     );
   }
-}
-
-Widget _buildDetail(BuildContext context, Restaurant restaurant) {
-  return CustomScrollView(
-    slivers: [
-      SliverAppBar(
-        pinned: false,
-        expandedHeight: 200,
-        leadingWidth: 38,
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xBB04E6FF),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
-        flexibleSpace: FlexibleSpaceBar(
-          background: Hero(
-            tag: restaurant.pictureId,
-            child: Image.network(
-              'https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId}',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  'images/error_image.jpeg',
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                restaurant.name,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Divider(
-                color: Colors.blueGrey,
-              ),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.pin_drop,
-                    color: Colors.red,
-                    size: 20,
-                  ),
-                  Expanded(
-                    child: Text("${restaurant.address}, ${restaurant.city}",
-                        style: Theme.of(context).textTheme.labelSmall),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  RatingBarIndicator(
-                    rating: restaurant.rating.toDouble(),
-                    itemSize: 20,
-                    itemBuilder: (context, index) {
-                      return const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                      );
-                    },
-                  ),
-                  Text(" ${restaurant.rating.toString()}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelSmall
-                          ?.copyWith(fontSize: 15)),
-                ],
-              ),
-              restaurant.categories!.isNotEmpty
-                  ? RichText(
-                      text: TextSpan(
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(fontSize: 15),
-                          children: [
-                            const TextSpan(text: "Category: "),
-                            TextSpan(
-                              text: _restaurantCat(restaurant.categories!),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          ]),
-                    )
-                  : const Text(
-                      "Category: -",
-                    ),
-              const Divider(
-                color: Colors.blueGrey,
-              ),
-              Text(
-                restaurant.description,
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.justify,
-              ),
-            ],
-          ),
-        ),
-      )
-    ],
-  );
 }
 
 String _restaurantCat(List<Category> categories) {
@@ -189,7 +198,7 @@ String _restaurantCat(List<Category> categories) {
   return result;
 }
 
-Widget _buildFAB(BuildContext context, Menus menus) {
+Widget _buildFAB(BuildContext context, Restaurant restaurant) {
   return FloatingActionButton(
     backgroundColor: secondaryColor,
     shape: RoundedRectangleBorder(
@@ -268,7 +277,7 @@ Widget _buildFAB(BuildContext context, Menus menus) {
                         Container(
                           margin: const EdgeInsets.only(bottom: 10),
                           child: Table(
-                            children: _buldMenus(context, menus),
+                            children: _buldMenus(context, restaurant),
                           ),
                         ),
                       ],
@@ -284,10 +293,10 @@ Widget _buildFAB(BuildContext context, Menus menus) {
   );
 }
 
-List<TableRow> _buldMenus(BuildContext context, Menus menus) {
+List<TableRow> _buldMenus(BuildContext context, Restaurant restaurant) {
   List<TableRow> result = [];
-  int foodsLen = menus.foods.length;
-  int drinksLen = menus.drinks.length;
+  int foodsLen = restaurant.menus?.foods.length ?? 0;
+  int drinksLen = restaurant.menus?.drinks.length ?? 0;
 
   for (int i = 0; i < (foodsLen > drinksLen ? foodsLen : drinksLen); i++) {
     result.add(
@@ -296,7 +305,9 @@ List<TableRow> _buldMenus(BuildContext context, Menus menus) {
           Padding(
             padding: const EdgeInsets.only(top: 1, bottom: 1, left: 25),
             child: Text(
-              i < foodsLen ? "${i + 1}. ${menus.foods[i].name}" : "",
+              i < foodsLen
+                  ? "${i + 1}. ${restaurant.menus!.foods[i].name}"
+                  : "",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 15,
                   ),
@@ -305,7 +316,9 @@ List<TableRow> _buldMenus(BuildContext context, Menus menus) {
           Padding(
             padding: const EdgeInsets.only(top: 1, bottom: 1, left: 25),
             child: Text(
-              i < drinksLen ? "${i + 1}. ${menus.drinks[i].name}" : "",
+              i < drinksLen
+                  ? "${i + 1}. ${restaurant.menus!.drinks[i].name}"
+                  : "",
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontSize: 15,
                   ),

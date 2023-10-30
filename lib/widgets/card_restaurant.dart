@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myrestaurant/common/navigation.dart';
+import 'package:myrestaurant/data/api/api_service.dart';
 import 'package:myrestaurant/data/model/restaurant.dart';
 import 'package:myrestaurant/ui/detail_page.dart';
 
@@ -11,9 +13,10 @@ class CardRestaurant extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       child: GestureDetector(
-        onTap: () {
-          Navigator.pushNamed(context, DetailPage.routeName,
-              arguments: restaurant.id);
+        onTap: () async {
+          var result = await ApiService().detailRestaurant(restaurant.id);
+          final selectedRestaurant = result.restaurants.first;
+          Navigation.intentWithData(DetailPage.routeName, selectedRestaurant);
         },
         behavior: HitTestBehavior.opaque,
         child: Card(

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:myrestaurant/provider/restaurant_list_provider.dart';
 import 'package:myrestaurant/ui/search_page.dart';
+import 'package:myrestaurant/utils/result_state.dart';
 import 'package:myrestaurant/widgets/card_restaurant.dart';
 import 'package:provider/provider.dart';
 
 class ListPage extends StatelessWidget {
-  static const routeName = '/list';
-
   const ListPage({super.key});
 
   @override
@@ -28,7 +27,7 @@ class ListPage extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
