@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:myrestaurant/common/styles.dart';
 import 'package:myrestaurant/data/model/restaurant.dart';
 import 'package:myrestaurant/provider/database_provider.dart';
+import 'package:myrestaurant/ui/review_page.dart';
 import 'package:provider/provider.dart';
 
 class DetailPage extends StatelessWidget {
@@ -41,7 +42,7 @@ class DetailPage extends StatelessWidget {
                       background: Hero(
                         tag: restaurant.pictureId,
                         child: Image.network(
-                          'https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId}',
+                          'https://restaurant-api.dicoding.dev/images/small/${restaurant.pictureId}',
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
@@ -118,29 +119,59 @@ class DetailPage extends StatelessWidget {
                               ),
                               Expanded(
                                 child: Text(
-                                    "${restaurant.address}, ${restaurant.city}",
-                                    style:
-                                        Theme.of(context).textTheme.labelSmall),
+                                  "${restaurant.address}, ${restaurant.city}",
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
                               ),
                             ],
                           ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              RatingBarIndicator(
-                                rating: restaurant.rating.toDouble(),
-                                itemSize: 20,
-                                itemBuilder: (context, index) {
-                                  return const Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                  );
-                                },
+                              Row(
+                                children: [
+                                  RatingBarIndicator(
+                                    rating: restaurant.rating.toDouble(),
+                                    itemSize: 20,
+                                    itemBuilder: (context, index) {
+                                      return const Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                      );
+                                    },
+                                  ),
+                                  Text(
+                                    " ${restaurant.rating.toString()}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(fontSize: 15),
+                                  ),
+                                ],
                               ),
-                              Text(" ${restaurant.rating.toString()}",
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    width: 1.0,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  padding: const EdgeInsets.all(6),
+                                ),
+                                child: Text(
+                                  restaurant.customerReviews!.isEmpty
+                                      ? "No review yet"
+                                      : "${restaurant.customerReviews?.length.toString()} reviews",
                                   style: Theme.of(context)
                                       .textTheme
                                       .labelSmall
-                                      ?.copyWith(fontSize: 15)),
+                                      ?.copyWith(fontSize: 15),
+                                ),
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, ReviewPage.routeName,
+                                      arguments: restaurant.id);
+                                },
+                              )
                             ],
                           ),
                           restaurant.categories!.isNotEmpty

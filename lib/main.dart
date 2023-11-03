@@ -11,11 +11,13 @@ import 'package:myrestaurant/data/model/restaurant.dart';
 import 'package:myrestaurant/data/preferences/preferences_helper.dart';
 import 'package:myrestaurant/provider/database_provider.dart';
 import 'package:myrestaurant/provider/preferences_provider.dart';
+import 'package:myrestaurant/provider/restaurant_review_provider.dart';
 import 'package:myrestaurant/provider/restaurant_list_provider.dart';
 import 'package:myrestaurant/provider/scheduling_provider.dart';
 import 'package:myrestaurant/provider/search_provider.dart';
 import 'package:myrestaurant/ui/detail_page.dart';
 import 'package:myrestaurant/ui/home_page.dart';
+import 'package:myrestaurant/ui/review_page.dart';
 import 'package:myrestaurant/ui/search_page.dart';
 import 'package:myrestaurant/ui/splash_screen.dart';
 import 'package:myrestaurant/utils/background_service.dart';
@@ -73,6 +75,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => SchedulingProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => RestaurantReviewProvider(
+            apiService: ApiService(),
+          ),
+        )
       ],
       child: MaterialApp(
         title: 'My Restaurant',
@@ -110,6 +117,8 @@ class MyApp extends StatelessWidget {
                 ),
                 child: const SearchPage(),
               ),
+          ReviewPage.routeName: (context) => ReviewPage(
+              id: ModalRoute.of(context)?.settings.arguments as String),
         },
       ),
     );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myrestaurant/common/navigation.dart';
 import 'package:myrestaurant/ui/detail_page.dart';
 import 'package:myrestaurant/ui/favorites_page.dart';
 import 'package:myrestaurant/ui/list_page.dart';
 import 'package:myrestaurant/ui/profile_page.dart';
+import 'package:myrestaurant/ui/setting_page.dart';
 import 'package:myrestaurant/utils/notification_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,12 +31,17 @@ class _HomePageState extends State<HomePage> {
       icon: Icon(Icons.person),
       label: "Profile",
     ),
+    const BottomNavigationBarItem(
+      icon: Icon(Icons.settings),
+      label: "Settings",
+    ),
   ];
 
   final List<Widget> _getWidget = [
     const ListPage(),
     const FavoritesPage(),
-    const ProfilePage(),
+    ProfilePage(),
+    const SettingPage(),
   ];
 
   @override
@@ -57,6 +62,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: _getWidget[_bottomNavIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _bottomNavIndex,
         items: _bottomNavBarItems,
         onTap: (value) {

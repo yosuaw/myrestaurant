@@ -3,37 +3,35 @@ import 'package:myrestaurant/data/api/api_service.dart';
 import 'package:myrestaurant/data/model/restaurant.dart';
 import 'package:myrestaurant/utils/result_state.dart';
 
-class RestaurantDetailProvider extends ChangeNotifier {
+class RestaurantReviewProvider extends ChangeNotifier {
   final ApiService apiService;
-  final String id;
 
-  RestaurantDetailProvider({required this.apiService, required this.id}) {
-    _fetchDetailRestaurant(id);
-  }
+  RestaurantReviewProvider({required this.apiService});
 
-  late Restaurant _restaurant;
+  late List<CustomerReview> _restaurantReviews;
   late ResultState _state;
   String _message = '';
 
   String get message => _message;
-  Restaurant get result => _restaurant;
+  List<CustomerReview> get restaurantReviews => _restaurantReviews;
   ResultState get state => _state;
 
-  Future<dynamic> _fetchDetailRestaurant(String id) async {
+  Future<dynamic> addRestaurantReview(
+      String id, String name, String review) async {
     try {
       _state = ResultState.loading;
       notifyListeners();
 
-      final restaurant = await apiService.detailRestaurant(id);
+      final result = await apiService.addReview(id, name, review);
 
-      if (restaurant.restaurants.isEmpty) {
+      if (result.customerReviews.isEmpty) {
         _state = ResultState.noData;
         notifyListeners();
-        return _message = 'No data fetched with current restaurant ID!';
+        return _message = 'Failed to add review!';
       } else {
         _state = ResultState.hasData;
         notifyListeners();
-        return _restaurant = restaurant.restaurants[0];
+        return _restaurantReviews = result.customerReviews;
       }
     } catch (e) {
       _state = ResultState.error;

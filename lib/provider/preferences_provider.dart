@@ -7,6 +7,7 @@ class PreferencesProvider extends ChangeNotifier {
   PreferencesProvider({required this.preferencesHelper}) {
     // _getTheme();
     _getDailyReminderPreferences();
+    _getProfileName();
   }
 
   // bool _isDarkTheme = false;
@@ -16,6 +17,9 @@ class PreferencesProvider extends ChangeNotifier {
   bool get isDailyReminderActive => _isDailyReminderActive;
 
   // ThemeData get themeData => _isDarkTheme ? darkTheme : lightTheme;
+
+  String _profileName = '';
+  String get profileName => _profileName;
 
   // void _getTheme() async {
   //   _isDarkTheme = await preferencesHelper.isDarkTheme;
@@ -35,5 +39,15 @@ class PreferencesProvider extends ChangeNotifier {
   void enableDailyReminder(bool value) {
     preferencesHelper.setDailyReminder(value);
     _getDailyReminderPreferences();
+  }
+
+  void _getProfileName() async {
+    _profileName = await preferencesHelper.getProfileName;
+    notifyListeners();
+  }
+
+  void setProfileName(String value) {
+    preferencesHelper.setProfileName(value);
+    _getProfileName();
   }
 }

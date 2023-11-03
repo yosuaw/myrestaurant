@@ -36,10 +36,9 @@ class SearchPage extends StatelessWidget {
                       ),
                     ),
                     hintText: "Restaurant/Category/Menus",
-                    hintStyle: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.copyWith(color: Colors.grey[800]),
+                    hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[800],
+                        ),
                     filled: true,
                     fillColor: Colors.grey[200],
                     contentPadding: const EdgeInsets.all(0),

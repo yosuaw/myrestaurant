@@ -34,4 +34,19 @@ class ApiService {
       throw Exception('Failed to search restaurant');
     }
   }
+
+  Future<RestaurantReview> addReview(String id, String name, String review) async {
+    Map<String, String> reqHeader = {
+       'Content-Type': 'application/json',
+     };
+    String reqBody = jsonEncode({"id": id, "name": name, "review": review});
+
+    final response = await http.post(Uri.parse("$_baseUrl/review"), headers: reqHeader, body: reqBody);
+
+    if (response.statusCode == 201) {
+      return RestaurantReview.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to add review');
+    }
+  }
 }
